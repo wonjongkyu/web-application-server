@@ -9,8 +9,7 @@ import com.google.common.collect.Maps;
 
 public class HttpRequestUtils {
     /**
-     * @param queryString은
-     *            URL에서 ? 이후에 전달되는 field1=value1&field2=value2 형식임
+     * @param queryString은 URL에서 ? 이후에 전달되는 field1=value1&field2=value2 형식임
      * @return
      */
     public static Map<String, String> parseQueryString(String queryString) {
@@ -18,8 +17,7 @@ public class HttpRequestUtils {
     }
 
     /**
-     * @param 쿠키
-     *            값은 name1=value1; name2=value2 형식임
+     * @param 쿠키값은 name1=value1; name2=value2 형식임
      * @return
      */
     public static Map<String, String> parseCookies(String cookies) {
@@ -106,4 +104,51 @@ public class HttpRequestUtils {
             return "Pair [key=" + key + ", value=" + value + "]";
         }
     }
+    
+    /**
+     * @param 요청 URL
+     * @return 
+     */
+    public static String getHttpURL(String line) {
+    	String result = "";
+    	
+    	String[] tokens = line.split(" ");
+    	if(tokens.length > 1){
+    		result = tokens[1];
+    		/*if(tokens[1].indexOf(Constants.DEFAULT_EXT) > -1){
+    			result = tokens[1];
+    		}*/
+    	}
+    	return result;
+    }
+    
+    /**
+     * @param 요청 URL과 파라미터값을 분리하기 위함
+     * @return 
+     */
+    public static String splitQuery(String url){
+    	int index = url.indexOf("?");
+    	// String requestPath = url.substring(0, index);
+    	String params = url.substring(index+1);
+    	return params;
+    }
+    
+    public static String checkRedirectURL(String url){
+    	if(url.indexOf("/user/create") > -1){
+    		url = Constants.DEFAULT_PAGE;
+    		System.out.println(url);
+    	}
+    	return url;
+    }
+    
+    public static boolean checkRedirectURL2(String url){
+    	boolean replaceYN = false;
+    	if(url.indexOf("/user/create") > -1){
+    		url = Constants.DEFAULT_PAGE;
+    		replaceYN = true;
+    	}
+    	return replaceYN;
+    }
+    
 }
+
