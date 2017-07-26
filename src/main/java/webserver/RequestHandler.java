@@ -68,7 +68,7 @@ public class RequestHandler extends Thread {
                 log.debug("user : {}", user);
                 DataBase.addUser(user);
                 DataOutputStream dos = new DataOutputStream(out);
-                response302Header(dos);
+                response302Header(dos);			// 새로고침을 위한 302코드
             } else if ("/user/login".equals(url)) {
                 String body = IOUtils.readData(br, contentLength);
                 Map<String, String> params = HttpRequestUtils.parseQueryString(body);
@@ -113,7 +113,8 @@ public class RequestHandler extends Thread {
             log.error(e.getMessage());
         }
     }
-
+    
+    // 로그인 체크
     private boolean isLogin(String line) {
         String[] headerTokens = line.split(":");
         Map<String, String> cookies = HttpRequestUtils.parseCookies(headerTokens[1].trim());
@@ -123,7 +124,8 @@ public class RequestHandler extends Thread {
         }
         return Boolean.parseBoolean(value);
     }
-
+    
+    // 기본 응답
     private void responseResource(OutputStream out, String url) throws IOException {
         DataOutputStream dos = new DataOutputStream(out);
         byte[] body = Files.readAllBytes(new File("./webapp" + url).toPath());
@@ -131,18 +133,21 @@ public class RequestHandler extends Thread {
         responseBody(dos, body);
     }
 
+    // Css 응답
     private void responseCssResource(OutputStream out, String url) throws IOException {
         DataOutputStream dos = new DataOutputStream(out);
         byte[] body = Files.readAllBytes(new File("./webapp" + url).toPath());
         response200CssHeader(dos, body.length);
         responseBody(dos, body);
     }
-
+    
+    // POST 방식인 경우 body의 길이를 가져오는 함수
     private int getContentLength(String line) {
         String[] headerTokens = line.split(":");
         return Integer.parseInt(headerTokens[1].trim());
     }
-
+    
+    // 디폴트 URL을 가져오는 함수
     private String getDefaultUrl(String[] tokens) {
         String url = tokens[1];
         if (url.equals("/")) {
@@ -150,7 +155,8 @@ public class RequestHandler extends Thread {
         }
         return url;
     }
-
+    
+    // 정상적인 기본 응답 200 헤더
     private void response200Header(DataOutputStream dos, int lengthOfBodyContent) {
         try {
             dos.writeBytes("HTTP/1.1 200 OK \r\n");
@@ -161,7 +167,8 @@ public class RequestHandler extends Thread {
             log.error(e.getMessage());
         }
     }
-
+    
+    // 정상적인 css 응답 200 헤더
     private void response200CssHeader(DataOutputStream dos, int lengthOfBodyContent) {
         try {
             dos.writeBytes("HTTP/1.1 200 OK \r\n");
@@ -172,7 +179,8 @@ public class RequestHandler extends Thread {
             log.error(e.getMessage());
         }
     }
-
+    
+    // 리다이렉션을 위한 302 응답 헤더
     private void response302Header(DataOutputStream dos) {
         try {
             dos.writeBytes("HTTP/1.1 302 Redirect \r\n");
@@ -182,18 +190,20 @@ public class RequestHandler extends Thread {
             log.error(e.getMessage());
         }
     }
-
+    
+    // 쿠키 설정을 한 302 로그인 성공 응답 헤더
     private void response302LoginSuccessHeader(DataOutputStream dos) {
         try {
             dos.writeBytes("HTTP/1.1 302 Redirect \r\n");
-            dos.writeBytes("Set-Cookie: logined=true \r\n");
+            dos.writeBytes("Set-Cookie: logined=true \r\n");	// 쿠키 추가
             dos.writeBytes("Location: /index.html \r\n");
             dos.writeBytes("\r\n");
         } catch (IOException e) {
             log.error(e.getMessage());
         }
     }
-
+    
+    // 기본 응답 body
     private void responseBody(DataOutputStream dos, byte[] body) {
         try {
             dos.write(body, 0, body.length);
